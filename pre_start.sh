@@ -23,6 +23,35 @@ echo "Syncing ComfyUI to workspace, please wait..."
 rsync -au /ComfyUI/ /workspace/ComfyUI/
 rm -rf /ComfyUI
 
+#install models
+if [[ ! -d "/sd-models" ]]
+then
+    mkdir /sd-models
+    #AnimateDiff custom models
+    git clone https://huggingface.co/manshoety/AD_Stabilized_Motion
+    mv -t /workspace/ComfyUI/custom_nodes/ComfyUI-AnimateDiff-Evolved/models AD_Stabilized_Motion/mm-Stabilized_high.pth AD_Stabilized_Motion/mm-Stabilized_mid.pth 
+    rm -rf AD_Stabilized_Motion
+    #SD 1.5 models
+    mkdir tempmodels
+    wget "https://civitai.com/api/download/models/128713?type=Model&format=SafeTensor&size=pruned&fp=fp16" --content-disposition -P /sd-models
+    wget "https://civitai.com/api/download/models/46846" --content-disposition -P /sd-models
+    wget "https://civitai.com/api/download/models/157159?type=Model&format=SafeTensor&size=full&fp=fp16" --content-disposition -P /sd-models
+    wget "https://civitai.com/api/download/models/130072?type=Model&format=SafeTensor&size=pruned&fp=fp16" --content-disposition -P /sd-models
+    #SDXL models
+    wget "https://civitai.com/api/download/models/148259" --content-disposition -P /sd-models
+    wget "https://civitai.com/api/download/models/156005" --content-disposition -P /sd-models
+    wget "https://civitai.com/api/download/models/151901" --content-disposition -P /sd-models
+    wget "https://civitai.com/api/download/models/144229" --content-disposition -P /sd-models
+    #VAEs
+    wget "https://huggingface.co/WarriorMama777/OrangeMixs/blob/main/VAEs/orangemix.vae.pt" -P /sd-models
+    wget https://huggingface.co/stabilityai/sd-vae-ft-mse-original/resolve/main/vae-ft-mse-840000-ema-pruned.safetensors -P /sd-models
+    wget wget https://huggingface.co/madebyollin/sdxl-vae-fp16-fix/resolve/main/sdxl_vae.safetensors -P /sd-models
+    #Embeddings
+    wget "https://huggingface.co/embed/bad_prompt/blob/main/bad_prompt_version2.pt" -P /sd-models
+    wget "https://huggingface.co/nick-x-hacker/bad-artist/blob/main/bad-artist.pt" -P /sd-models
+fi
+
+
 # Sync Application Manager to workspace to support Network volumes
 echo "Syncing Application Manager to workspace, please wait..."
 rsync -au /app-manager/ /workspace/app-manager/
@@ -32,18 +61,30 @@ rm -rf /app-manager
 echo "Fixing Stable Diffusion Web UI venv..."
 /fix_venv.sh /venv /workspace/venv
 
-echo "Fixing Kohya_ss venv..."
-/fix_venv.sh /kohya_ss/venv /workspace/kohya_ss/venv
+# echo "Fixing Kohya_ss venv..."
+# /fix_venv.sh /kohya_ss/venv /workspace/kohya_ss/venv
 
 echo "Fixing ComfyUI venv..."
 /fix_venv.sh /ComfyUI/venv /workspace/ComfyUI/venv
 
 # Link modelS and VAE
-ln -s /sd-models/v1-5-pruned.safetensors /workspace/stable-diffusion-webui/models/Stable-diffusion/v1-5-pruned.safetensors
+#SD 1.5
+ln -s /sd-models/dreamshaper_8.safetensors /workspace/stable-diffusion-webui/models/Stable-diffusion/dreamshaper_8.safetensors
+ln -s /sd-models/revAnimated_v122EOL.safetensors /workspace/stable-diffusion-webui/models/Stable-diffusion/revAnimated_v122EOL.safetensors
+ln -s /sd-models/realcartoon3d_v7.safetensors /workspace/stable-diffusion-webui/models/Stable-diffusion/realcartoon3d_v7.safetensors
+ln -s /sd-models/realisticVisionV51_v51VAE.safetensors /workspace/stable-diffusion-webui/models/Stable-diffusion/realisticVisionV51_v51VAE.safetensors
+#SDXL
+ln -s /sd-models/dynavisionXLAllInOneStylized_beta0411Bakedvae.safetensors /workspace/stable-diffusion-webui/models/Stable-diffusion/dynavisionXLAllInOneStylized_beta0411Bakedvae.safetensors
+ln -s /sd-models/juggernautXL_version3.safetensors /workspace/stable-diffusion-webui/models/Stable-diffusion/juggernautXL_version3.safetensors
+ln -s /sd-models/nightvisionXLPhotorealisticPortrait_beta0702Bakedvae.safetensors /workspace/stable-diffusion-webui/models/Stable-diffusion/nightvisionXLPhotorealisticPortrait_beta0702Bakedvae.safetensors
+ln -s /sd-models/protovisionXLHighFidelity3D_beta0520Bakedvae.safetensors /workspace/stable-diffusion-webui/models/Stable-diffusion/protovisionXLHighFidelity3D_beta0520Bakedvae.safetensors
+#VAE
+ln -s /sd-models/orangemix.vae.pt workspace/stable-diffusion-webui/models/VAE/orangemix.vae.pt
 ln -s /sd-models/vae-ft-mse-840000-ema-pruned.safetensors workspace/stable-diffusion-webui/models/VAE/vae-ft-mse-840000-ema-pruned.safetensors
-ln -s /sd-models/sd_xl_base_1.0.safetensors /workspace/stable-diffusion-webui/models/Stable-diffusion/sd_xl_base_1.0.safetensors
-ln -s /sd-models/sd_xl_refiner_1.0.safetensors /workspace/stable-diffusion-webui/models/Stable-diffusion/sd_xl_refiner_1.0.safetensors
 ln -s /sd-models/sdxl_vae.safetensors /workspace/stable-diffusion-webui/models/VAE/sdxl_vae.safetensors
+#Emeddings
+ln -s /sd-models/bad_prompt_version2.pt workspace/stable-diffusion-webui/embeddings/bad_prompt_version2.pt
+ln -s /sd-models/bad-artist.pt workspace/stable-diffusion-webui/embeddings/bad-artist.pt
 
 # Configure accelerate
 echo "Configuring accelerate..."

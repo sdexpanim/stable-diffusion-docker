@@ -76,18 +76,18 @@ FROM base as setup
 # These need to already have been downloaded:
 #   wget https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned.safetensors
 #   wget https://huggingface.co/stabilityai/sd-vae-ft-mse-original/resolve/main/vae-ft-mse-840000-ema-pruned.safetensors
-RUN mkdir -p /sd-models
-COPY v1-5-pruned.safetensors /sd-models/v1-5-pruned.safetensors
-COPY vae-ft-mse-840000-ema-pruned.safetensors /sd-models/vae-ft-mse-840000-ema-pruned.safetensors
+# RUN mkdir -p /sd-models
+# COPY v1-5-pruned.safetensors /sd-models/v1-5-pruned.safetensors
+# COPY vae-ft-mse-840000-ema-pruned.safetensors /sd-models/vae-ft-mse-840000-ema-pruned.safetensors
 
 # Add SDXL models and VAE
 # These need to already have been downloaded:
 #   wget https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors
 #   wget https://huggingface.co/stabilityai/stable-diffusion-xl-refiner-1.0/resolve/main/sd_xl_refiner_1.0.safetensors
 #   wget https://huggingface.co/madebyollin/sdxl-vae-fp16-fix/resolve/main/sdxl_vae.safetensors
-COPY sd_xl_base_1.0.safetensors /sd-models/sd_xl_base_1.0.safetensors
-COPY sd_xl_refiner_1.0.safetensors /sd-models/sd_xl_refiner_1.0.safetensors
-COPY sdxl_vae.safetensors /sd-models/sdxl_vae.safetensors
+# COPY sd_xl_base_1.0.safetensors /sd-models/sd_xl_base_1.0.safetensors
+# COPY sd_xl_refiner_1.0.safetensors /sd-models/sd_xl_refiner_1.0.safetensors
+# COPY sdxl_vae.safetensors /sd-models/sdxl_vae.safetensors
 
 # Clone the git repo of the Stable Diffusion Web UI by Automatic1111
 # and set version
@@ -111,12 +111,12 @@ RUN source /venv/bin/activate && \
     deactivate
 
 # Cache the Stable Diffusion Models
-RUN source /venv/bin/activate && \
-    python3 cache-sd-model.py --use-cpu=all --ckpt /sd-models/v1-5-pruned.safetensors && \
+# RUN source /venv/bin/activate && \
+#     python3 cache-sd-model.py --use-cpu=all --ckpt /sd-models/v1-5-pruned.safetensors && \
 # SDXL models result in OOM kills with 8GB system memory, probably need 12GB+ to cache these
 #    python3 cache-sd-model.py --use-cpu=all --ckpt /sd-models/sd_xl_base_1.0.safetensors && \
 #    python3 cache-sd-model.py --use-cpu=all --ckpt /sd-models/sd_xl_refiner_1.0.safetensors && \
-    deactivate
+    # deactivate
 
 # Clone the Automatic1111 Extensions
 RUN git clone https://github.com/d8ahazard/sd_dreambooth_extension.git extensions/sd_dreambooth_extension && \
@@ -158,23 +158,23 @@ RUN source /venv/bin/activate && \
     pip3 cache purge && \
     deactivate
 
-# Install Kohya_ss
-RUN git clone https://github.com/bmaltais/kohya_ss.git /kohya_ss
-WORKDIR /kohya_ss
-RUN git checkout ${KOHYA_VERSION} && \
-    python3 -m venv --system-site-packages venv && \
-    source venv/bin/activate && \
-    pip3 install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118 && \
-    pip3 install --no-cache-dir xformers==0.0.21 \
-        bitsandbytes==0.41.1 \
-        tensorboard==2.12.3 \
-        tensorflow==2.12.0 \
-        wheel \
-        tensorrt && \
-    pip3 install -r requirements.txt && \
-    pip3 install . && \
-    pip3 cache purge && \
-    deactivate
+# Install Kohya_ss DONT NEED KOHYA YET
+# RUN git clone https://github.com/bmaltais/kohya_ss.git /kohya_ss
+# WORKDIR /kohya_ss
+# RUN git checkout ${KOHYA_VERSION} && \
+#     python3 -m venv --system-site-packages venv && \
+#     source venv/bin/activate && \
+#     pip3 install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118 && \
+#     pip3 install --no-cache-dir xformers==0.0.21 \
+#         bitsandbytes==0.41.1 \
+#         tensorboard==2.12.3 \
+#         tensorflow==2.12.0 \
+#         wheel \
+#         tensorrt && \
+#     pip3 install -r requirements.txt && \
+#     pip3 install . && \
+#     pip3 cache purge && \
+#     deactivate
 
 # Install ComfyUI
 RUN git clone https://github.com/comfyanonymous/ComfyUI.git /ComfyUI
@@ -189,6 +189,7 @@ RUN python3 -m venv --system-site-packages venv && \
 
 # Install ComfyUI Custom Nodes
 RUN git clone https://github.com/ltdrdata/ComfyUI-Manager.git custom_nodes/ComfyUI-Manager
+RUN git clone https://github.com/Kosinkadink/ComfyUI-AnimateDiff-Evolved.git custom_nodes/ComfyUI-AnimateDiff-Evolved
 
 # Install Application Manager
 WORKDIR /
@@ -210,16 +211,16 @@ RUN wget https://github.com/runpod/runpodctl/releases/download/v1.10.0/runpodctl
     mv runpodctl /usr/local/bin
 
 # Install croc
-RUN curl https://getcroc.schollz.com | bash
+# RUN curl https://getcroc.schollz.com | bash
 
 # Install speedtest CLI
-RUN curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | bash && \
-    apt install speedtest
+# RUN curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | bash && \
+#     apt install speedtest
 
 # Install CivitAI Model Downloader
-RUN git clone --depth=1 https://github.com/ashleykleynhans/civitai-downloader.git && \
-    mv civitai-downloader/download.sh /usr/local/bin/download-model && \
-    chmod +x /usr/local/bin/download-model
+# RUN git clone --depth=1 https://github.com/ashleykleynhans/civitai-downloader.git && \
+#     mv civitai-downloader/download.sh /usr/local/bin/download-model && \
+#     chmod +x /usr/local/bin/download-model
 
 # Copy Stable Diffusion Web UI config files
 COPY a1111/relauncher.py a1111/webui-user.sh a1111/config.json a1111/ui-config.json /stable-diffusion-webui/
